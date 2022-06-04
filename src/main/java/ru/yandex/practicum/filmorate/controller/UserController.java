@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping(value = "/users")
-    public User addUser(@RequestBody User user) {
+    public User addUser(@Valid @RequestBody User user) {
         try {
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
                 throw new ValidationException("Email address is empty or doesn't contain @");
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/users")
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         try {
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
                 throw new ValidationException("Email address is empty or doesn't contain @");
