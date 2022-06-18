@@ -4,10 +4,12 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    private int id;
+    private long id;
     private String name;
     @NotEmpty(message = "Email cannot be empty.")
     @Email(message = "Enter a valid email address.")
@@ -17,4 +19,15 @@ public class User {
     @NotNull(message = "Birthday cannot be null.")
     @PastOrPresent(message = "Birthday cannot be in the future")
     private LocalDate birthday;
+    private Set<Long> friends = new HashSet<>();
+
+    public void addFriend(long id) {
+            friends.add(id);
+    }
+
+    public void deleteFriend(long id) {
+        if (friends != null) {
+            friends.remove(id);
+        }
+    }
 }
