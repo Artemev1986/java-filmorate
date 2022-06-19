@@ -5,9 +5,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +25,9 @@ class FilmControllerTest {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private FilmService service;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
@@ -79,7 +85,7 @@ class FilmControllerTest {
     @ParameterizedTest
     @CsvSource(value = {
             "-1,Film,description,200,13.04.2000"})
-    void whenInvalidIdThenReturns500(int id,
+    void whenInvalidIdThenReturns404(int id,
                                          String name,
                                          String description,
                                          long duration,
@@ -93,6 +99,6 @@ class FilmControllerTest {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 }
