@@ -40,7 +40,7 @@ public class ErrorHandler {
   }
 
     @ExceptionHandler
-    public ResponseEntity<?> exc(ConstraintViolationException e){
+    public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException e){
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
