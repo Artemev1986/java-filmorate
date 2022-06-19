@@ -7,10 +7,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
-    private int id;
+    private long id;
     @NotBlank(message = "Film name cannot be blank.")
     private String name;
     @NotBlank(message = "Login cannot be blank.")
@@ -21,4 +23,15 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private long duration;
+    private Set<Long> likes = new HashSet<>();
+
+    public void addLike(long id) {
+        likes.add(id);
+    }
+    public void deleteLike(long id) {
+        if (likes != null) {
+            likes.remove(id);
+        }
+    }
+
 }
