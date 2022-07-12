@@ -2,23 +2,35 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.MPAStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final MPAStorage mpaStorage;
+    private  final GenreStorage genreStorage;
     private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("filmDbStorage")
+                           FilmStorage filmStorage,
+                       MPAStorage mpaStorage,
+                       GenreStorage genreStorage,
+                       UserService userService) {
         this.filmStorage = filmStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
         this.userService = userService;
     }
 
@@ -52,7 +64,8 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         userService.getUserById(userId); //Will throw an exception if there is no user with id
-        getFilmById(filmId).addLike(userId);
+        getFilmById(filmId);
+        filmStorage.addLike(filmId, userId);
         log.debug("Like for the {} added by {}",
                 getFilmById(filmId).getName(),
                 userService.getUserById(userId).getName());
@@ -60,7 +73,8 @@ public class FilmService {
 
     public void deleteLike(long filmId, long userId) {
         userService.getUserById(userId); //Will throw an exception if there is no user with id
-        getFilmById(filmId).deleteLike(userId);
+        getFilmById(filmId);
+        filmStorage.deleteLike(filmId, userId);
         log.debug("Like for the {} deleted by {}",
                 getFilmById(filmId).getName(),
                 userService.getUserById(userId).getName());
@@ -68,10 +82,28 @@ public class FilmService {
 
     public List<Film> getPopularFilms(long count) {
         log.debug("Get {} popular films", count);
-        return filmStorage.findAll()
-                .stream()
-                .sorted((p0, p1) -> Long.compare(p1.getLikes().size(), p0.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(count);
+    }
+
+    public List<MPA> getAllMPA() {
+        log.debug("Get all MPA");
+        return mpaStorage.getAllMPA();
+    }
+
+    public MPA getMpaById(int id) {
+        return mpaStorage.getMPAById(id).
+                orElseThrow(() -> new NotFoundException("MPA with id (" + id + ") not found")
+        );
+    }
+
+    public  List<Genre> getAllGenre() {
+        log.debug("Get all Genre");
+        return genreStorage.getAllGenre();
+    }
+
+    public Genre getGenreById(int id) {
+        return genreStorage.getGenreById(id).
+                orElseThrow(() -> new NotFoundException("Genre with id (" + id + ") not found")
+        );
     }
 }

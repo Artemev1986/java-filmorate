@@ -24,6 +24,9 @@ public class Film {
     @Positive
     private long duration;
     private Set<Long> likes = new HashSet<>();
+    @NotNull
+    private MPA mpa;
+    private Set<Genre> genres;
 
     public void addLike(long id) {
         likes.add(id);

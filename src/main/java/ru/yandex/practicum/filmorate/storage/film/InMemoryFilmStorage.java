@@ -43,4 +43,19 @@ public class InMemoryFilmStorage implements FilmStorage{
     public void deleteFilmById(long id) {
         films.remove(id);
     }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public void deleteLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public List<Film> getPopularFilms(long count) {
+        return null;
+    }
 }
