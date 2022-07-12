@@ -1,11 +1,9 @@
 # java-filmorate
 ## Description
-
-This repository contains the java-filmorate project. This is a simple service for determining movie ratings based on user likes.
+ This is a service for determining movie ratings based on user likes.
 
 The following commands are available in this service:
 1. To manage users:
-
 - Create a user;
 - Update user;
 - Add user to friends;
@@ -14,40 +12,37 @@ The following commands are available in this service:
 - Get the user by his Id;
 - Get a list of user's friends;
 - Get a list of mutual friends of users of two users;
+2. To manage films:
+- Add film;
+- Update film;
+- Add a like to the film;
+- Remove like film;
+- Get a list of all films;
+- Get a film by its Id;
+- Get top N films sorted in descending order of rating;
+- Get a list of all film genres;
+- Get a list of all film age ratings.
 
-2. To manage movies:
-
-- Add movie;
-- Update movie;
-- Add a like to the movie;
-- Remove like movie;
-- Get a list of all movies;
-- Get a movie by its Id;
-- Get top N movies sorted in descending order of rating;
-- Get a list of all movie genres;
-- Get a list of all movie age ratings.
-
-## Service database
+## Database
 
 ![ER-diagram DB](schema.png)
 
-### Description of tables
+## Description of tables
 
-##### *MPA*
-This table is intended for storing a list of age ratings that can be assigned to films.
-The table contains two columns:
+#### *MPA*
+This table is intended for storing a list of age ratings that can be assigned to film.
 
 - **MPA_id** - rating ID;
 - **name** - rating name;
 - **description** - rating description.
 
-##### *genres*
+#### *genres*
 This table keeps a list of available movie genres:
 
 - **genre_id** - genre ID;
 - **name** - genre name.
 
-##### *films*
+#### *films*
 This table keeps a list of film:
 
 - **film_id** - film ID;
@@ -57,19 +52,19 @@ This table keeps a list of film:
 - **MPA_id** - rating ID;
 - **release_date** - release date film.
 
-##### *film_genre*
+#### *film_genre*
 This table keeps a list of film and genre matches:
 
 - **film_id** - film ID;
 - **genre_id** - genre ID.
 
-##### *likes*
+#### *likes*
 This table contains information about who liked what movie:
 
 - **film_id** - film ID.
 - **user_id** - user ID.
 
-##### *users*
+#### *users*
 This table contains information about users:
 
 - **user_id** - user ID;
@@ -78,14 +73,14 @@ This table contains information about users:
 - **name** - user name;
 - **birthday** - user's birthday.
 
-##### Таблица *friends*
+#### Таблица *friends*
 This table contains information about users' friends:
 
 - **user_id** - user ID;
 - **friend_id** - friend ID;
 - **is_confirm** - friendship status.
 
-#### Main SQL queries for films:
+### Main SQL queries for films:
 
     SQL_GET_FILM_BY_ID = SELECT 
             f.film_id AS f_id,
@@ -150,7 +145,7 @@ This table contains information about users' friends:
             LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id
             ORDER BY cnt DESC LIMIT ?;
 
-#### Main SQL queries for users:
+### Main SQL queries for users:
     SQL_GET_USERS = SELECT * FROM users ORDER BY user_id;
     SQL_GET_USER_BY_ID = SELECT * FROM users WHERE user_id = ?;
     SQL_ADD_USER = INSERT INTO users (name, email, login, birthday)
