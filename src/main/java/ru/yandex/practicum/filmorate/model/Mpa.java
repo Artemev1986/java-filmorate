@@ -5,8 +5,8 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class MPA {
-    private Integer id;
+public class Mpa {
+    private int id;
     @NotBlank(message = "Name cannot be blank.")
     private String name;
     @NotBlank(message = "Description cannot be blank.")

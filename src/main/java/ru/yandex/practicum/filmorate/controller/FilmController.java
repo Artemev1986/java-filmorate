@@ -5,7 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -34,8 +34,8 @@ public class FilmController {
     }
 
     @GetMapping("/films")
-    public List<Film> findAll() {
-        return filmService.findAll();
+    public List<Film> findAllFilms() {
+        return filmService.findAllFilms();
     }
 
     @GetMapping("/films/{id}")
@@ -77,12 +77,12 @@ public class FilmController {
     }
 
     @GetMapping("/mpa")
-    public List<MPA> getMPA() {
-        return filmService.getAllMPA();
+    public List<Mpa> getMpa() {
+        return filmService.getAllMpa();
     }
 
     @GetMapping("/mpa/{id}")
-    public MPA getMpaById(@Valid @PathVariable int id) {
+    public Mpa getMpaById(@Valid @PathVariable int id) {
         return filmService.getMpaById(id);
     }
 }

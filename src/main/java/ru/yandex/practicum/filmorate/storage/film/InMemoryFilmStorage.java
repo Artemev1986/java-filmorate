@@ -30,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public List<Film> findAll() {
+    public List<Film> findAllFilms() {
         return List.copyOf(films.values());
     }
 

@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.film.MPAStorage;
+import ru.yandex.practicum.filmorate.storage.film.MpaStorage;
 
 import java.util.List;
 
@@ -18,14 +18,14 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final MPAStorage mpaStorage;
+    private final MpaStorage mpaStorage;
     private  final GenreStorage genreStorage;
     private final UserService userService;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage")
                            FilmStorage filmStorage,
-                       MPAStorage mpaStorage,
+                       MpaStorage mpaStorage,
                        GenreStorage genreStorage,
                        UserService userService) {
         this.filmStorage = filmStorage;
@@ -57,9 +57,9 @@ public class FilmService {
         log.debug("Film with id ({}) was deleted", id);
     }
 
-    public List<Film> findAll() {
-        log.debug("Current film counts: {}", filmStorage.findAll().size());
-        return filmStorage.findAll();
+    public List<Film> findAllFilms() {
+        log.debug("Current film counts: {}", filmStorage.findAllFilms().size());
+        return filmStorage.findAllFilms();
     }
 
     public void addLike(long filmId, long userId) {
@@ -85,13 +85,13 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    public List<MPA> getAllMPA() {
+    public List<Mpa> getAllMpa() {
         log.debug("Get all MPA");
-        return mpaStorage.getAllMPA();
+        return mpaStorage.getAllMpa();
     }
 
-    public MPA getMpaById(int id) {
-        return mpaStorage.getMPAById(id).
+    public Mpa getMpaById(int id) {
+        return mpaStorage.getMpaById(id).
                 orElseThrow(() -> new NotFoundException("MPA with id (" + id + ") not found")
         );
     }

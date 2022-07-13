@@ -123,7 +123,7 @@ This table contains information about users' friends:
     SQL_DELETE_FILM = DELETE FROM films WHERE film_id = ?;
     SQL_ADD_LIKE = INSERT INTO likes (film_id, user_id) VALUES (?, ?);
     SQL_DELETE_LIKE = DELETE FROM likes WHERE film_id = ? AND user_id = ?;
-    SQL_SELECT_LIKE_BY_FILM_ID = SELECT user_id FROM likes WHERE film_id = ?;
+    SQL_GET_LIKES_BY_FILM_ID = SELECT user_id FROM likes WHERE film_id = ?;
     SQL_GET_GENRE_BY_FILM_ID = SELECT genre_id FROM FILM_GENRE WHERE film_id = ? ORDER BY genre_id;
     SQL_ADD_GENRE = INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?);
     SQL_DELETE_GENRE = DELETE FROM film_genre WHERE film_id = ?;
