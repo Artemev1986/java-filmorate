@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping()
+@RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
 
@@ -21,33 +21,33 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @PostMapping("/films")
+    @PostMapping()
     public Film addFilm(@Valid @RequestBody Film film) {
         return filmService.addFilm(film);
     }
 
-    @PutMapping("/films")
+    @PutMapping()
     public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
-    @GetMapping("/films")
+    @GetMapping()
     public List<Film> findAllFilms() {
         return filmService.findAllFilms();
     }
 
-    @GetMapping("/films/{id}")
+    @GetMapping("/{id}")
     public Film getFilmById(@Valid @PathVariable long id) {
         return filmService.getFilmById(id);
     }
 
-    @DeleteMapping("/films/{id}")
+    @DeleteMapping("/{id}")
     public long deleteFilmById(@Valid @PathVariable long id) {
         filmService.deleteFilmById(id);
         return id;
     }
 
-    @GetMapping("/films/popular")
+    @GetMapping("/popular")
     public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") long count) {
         return filmService.getPopularFilms(count);
     }
