@@ -20,14 +20,4 @@ public class User {
     @PastOrPresent(message = "Birthday cannot be in the future")
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
-
-    public void addFriend(long id) {
-            friends.add(id);
-    }
-
-    public void deleteFriend(long id) {
-        if (friends != null) {
-            friends.remove(id);
-        }
-    }
 }

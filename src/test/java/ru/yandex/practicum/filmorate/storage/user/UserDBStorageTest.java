@@ -8,7 +8,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.dao.UserDbStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -161,6 +163,16 @@ class UserDBStorageTest {
 
     @Test
     @Order(7)
+    public void confirmFriend() {
+        assertThat(userStorage.isConfirmFriend(3L, 4L))
+                .isPresent().hasValueSatisfying(i -> assertThat(i).isFalse());
+        userStorage.confirmFriend(3L, 4L);
+        assertThat(userStorage.isConfirmFriend(3L, 4L))
+                .isPresent().hasValueSatisfying(i -> assertThat(i).isTrue());
+    }
+
+    @Test
+    @Order(8)
     void deleteFriend() {
         List<User> users = userStorage.findAll();
         userStorage.deleteFriend(users.get(0).getId(), users.get(1).getId());

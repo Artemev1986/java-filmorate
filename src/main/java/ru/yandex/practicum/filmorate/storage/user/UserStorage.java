@@ -21,4 +21,6 @@ public interface UserStorage {
     void deleteFriend(Long userId, Long friendId);
 
     void confirmFriend(Long userId, Long friendId);
+
+    Optional<Boolean> isConfirmFriend(Long userId, Long friendId);
 }

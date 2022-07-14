@@ -27,14 +27,4 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Set<Genre> genres;
-
-    public void addLike(long id) {
-        likes.add(id);
-    }
-    public void deleteLike(long id) {
-        if (likes != null) {
-            likes.remove(id);
-        }
-    }
-
 }

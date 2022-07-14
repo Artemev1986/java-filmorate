@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -49,40 +47,8 @@ public class FilmController {
         return id;
     }
 
-    @PutMapping("/films/{id}/like/{userId}")
-    public long addLike(@Valid @PathVariable long id, @PathVariable long userId) {
-        filmService.addLike(id, userId);
-        return userId;
-    }
-
-    @DeleteMapping("/films/{id}/like/{userId}")
-    public long deleteLike(@Valid @PathVariable long id, @PathVariable long userId) {
-        filmService.deleteLike(id, userId);
-        return userId;
-    }
-
     @GetMapping("/films/popular")
     public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") long count) {
         return filmService.getPopularFilms(count);
-    }
-
-    @GetMapping("/genres")
-    public List<Genre> getGenre() {
-        return filmService.getAllGenre();
-    }
-
-    @GetMapping("/genres/{id}")
-    public Genre getGenreById(@Valid @PathVariable int id) {
-        return filmService.getGenreById(id);
-    }
-
-    @GetMapping("/mpa")
-    public List<Mpa> getMpa() {
-        return filmService.getAllMpa();
-    }
-
-    @GetMapping("/mpa/{id}")
-    public Mpa getMpaById(@Valid @PathVariable int id) {
-        return filmService.getMpaById(id);
     }
 }
