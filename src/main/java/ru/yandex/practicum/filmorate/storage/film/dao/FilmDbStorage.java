@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@Component("filmDbStorage")
+@Component()
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
