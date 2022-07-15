@@ -33,8 +33,9 @@ public class UserService {
 
     public User addUser(User user) {
         checkName(user);
+        userStorage.addUser(user);
         log.debug("Adding new user with id: {}", user.getId());
-        return userStorage.addUser(user);
+        return user;
     }
 
     public User updateUser(User user) {
@@ -52,7 +53,8 @@ public class UserService {
 
     public void addFriend(long userId, long friendId) {
         getUserById(friendId); //Will throw an exception if there is no user with id
-        getUserById(userId).addFriend(friendId);
+        getUserById(userId);
+        userStorage.addFriend(userId, friendId);
         log.debug("{} added {} as a friend",
                 getUserById(userId).getName(),
                 getUserById(friendId).getName());
@@ -60,7 +62,8 @@ public class UserService {
 
     public void deleteFriend(long userId, long friendId) {
         getUserById(friendId); //Will throw an exception if there is no user with id
-        getUserById(userId).deleteFriend(friendId);
+        getUserById(userId);
+        userStorage.deleteFriend(userId, friendId);
         log.debug("{} deleted {} from friends",
                 getUserById(userId).getName(),
                 getUserById(friendId).getName());

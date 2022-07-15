@@ -24,14 +24,7 @@ public class Film {
     @Positive
     private long duration;
     private Set<Long> likes = new HashSet<>();
-
-    public void addLike(long id) {
-        likes.add(id);
-    }
-    public void deleteLike(long id) {
-        if (likes != null) {
-            likes.remove(id);
-        }
-    }
-
+    @NotNull
+    private Mpa mpa;
+    private Set<Genre> genres;
 }

@@ -10,9 +10,11 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    List<Film> findAll();
+    List<Film> findAllFilms();
 
     Optional<Film> getFilmById(long id);
 
     void deleteFilmById(long id);
+
+    List<Film> getPopularFilms(long count);
 }
