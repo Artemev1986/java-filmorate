@@ -5,11 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +30,7 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
+        setCorrectGenreOrder(film);
         filmStorage.addFilm(film);
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             film.getGenres().forEach(genre -> genreStorage.addGenre(film.getId(), genre.getId()));
@@ -36,6 +41,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         getFilmById(film.getId()); //Will throw an exception if there is no film with id
+        setCorrectGenreOrder(film);
         filmStorage.updateFilm(film);
         if (film.getGenres() != null) {
             genreStorage.deleteGenres(film.getId());
@@ -79,5 +85,13 @@ public class FilmService {
         });
         log.debug("Get {} popular films", count);
         return films;
+    }
+
+    private void setCorrectGenreOrder(Film film) {
+        if (film.getGenres() != null) {
+            film.setGenres(film.getGenres().stream()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+        }
     }
 }
