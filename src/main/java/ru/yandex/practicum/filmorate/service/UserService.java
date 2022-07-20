@@ -4,21 +4,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final LikeStorage likeStorage;
+    private final FilmService filmService;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage,
+                       LikeStorage likeStorage,
+                       FilmService filmService) {
         this.userStorage = userStorage;
+        this.likeStorage = likeStorage;
+        this.filmService = filmService;
     }
     public List<User> findAll() {
         log.debug("Current user counts: {}", userStorage.findAll().size());
@@ -84,6 +93,20 @@ public class UserService {
         commonFriendList.retainAll(secondFriendList);
         log.debug("Current common friend counts: {}", commonFriendList.size());
         return commonFriendList;
+    }
+
+    public Set<Film> getRecommendations(long id) {
+        getUserById(id); //Will throw an exception if there is no user with id
+        Set<Film> recommendations = userStorage.getUserIdsForRecommendations(id).stream()
+                .flatMap(userId -> likeStorage.getFilmIdsByUserId(userId).stream())
+                .map(filmService::getFilmById)
+                .collect(Collectors.toSet());
+        Set<Film> userFilms = likeStorage.getFilmIdsByUserId(id).stream()
+                .map(filmService::getFilmById)
+                .collect(Collectors.toSet());
+        recommendations.removeAll(userFilms);
+        log.info("Recommendations for user {}: {}", id, recommendations);
+        return recommendations;
     }
 
     private void checkName(User user) {

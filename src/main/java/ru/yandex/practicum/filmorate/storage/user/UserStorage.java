@@ -23,4 +23,6 @@ public interface UserStorage {
     void confirmFriend(Long userId, Long friendId);
 
     Optional<Boolean> isConfirmFriend(Long userId, Long friendId);
+
+    List<Long> getUserIdsForRecommendations(Long userId);
 }
