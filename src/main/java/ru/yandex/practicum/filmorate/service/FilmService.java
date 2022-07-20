@@ -31,7 +31,7 @@ public class FilmService {
             film.getGenres().forEach(genre -> genreStorage.addGenre(film.getId(), genre.getId()));
         }
         log.debug("Adding new film with id: {}", film.getId());
-        return film;
+        return getFilmById(film.getId());
     }
 
     public Film updateFilm(Film film) {
