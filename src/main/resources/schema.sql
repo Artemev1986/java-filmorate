@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-	user_id BIGINT NOT NULL REFERENCES users (user_id),
-	friend_id BIGINT NOT NULL REFERENCES users (user_id),
+	user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+	friend_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
 	is_confirmed BOOLEAN DEFAULT FALSE,
 	CONSTRAINT friends_pair UNIQUE (user_id, friend_id)
 );
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS films (
 );
 
 CREATE TABLE IF NOT EXISTS likes (
-    film_id BIGINT NOT NULL REFERENCES films (film_id),
-    user_id BIGINT NOT NULL REFERENCES users (user_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     CONSTRAINT film_user UNIQUE (film_id, user_id)
 );
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS genres (
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    film_id BIGINT NOT NULL REFERENCES films (film_id),
-    genre_id INTEGER NOT NULL REFERENCES genres (genre_id),
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    genre_id INTEGER NOT NULL REFERENCES genres (genre_id) ON DELETE CASCADE,
     CONSTRAINT film_genre UNIQUE (film_id, genre_id)
 );
