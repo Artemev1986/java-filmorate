@@ -43,6 +43,6 @@ CREATE TABLE IF NOT EXISTS genres (
 
 CREATE TABLE IF NOT EXISTS film_genre (
     film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
-    genre_id INTEGER NOT NULL REFERENCES genres (genre_id),
+    genre_id INTEGER NOT NULL REFERENCES genres (genre_id) ON DELETE CASCADE,
     CONSTRAINT film_genre UNIQUE (film_id, genre_id)
 );
