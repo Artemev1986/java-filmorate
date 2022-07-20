@@ -27,7 +27,7 @@ public class ReviewController {
         return reviewService.addReview(review);
     }
 
-    @PostMapping()
+    @PutMapping()
     public Review updateReview(@Valid @RequestBody Review review) {
         return reviewService.updateReview(review);
     }
@@ -65,13 +65,13 @@ public class ReviewController {
         return userId;
     }
 
-    @PutMapping("/{id}/like/{userId}")
+    @DeleteMapping("/{id}/like/{userId}")
     public long deleteLikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
         reviewLikeService.deleteLikeForReview(id, userId);
         return userId;
     }
 
-    @PutMapping("/{id}/dislike/{userId}")
+    @DeleteMapping("/{id}/dislike/{userId}")
     public long deleteDislikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
         reviewLikeService.deleteDislikeForReview(id, userId);
         return userId;

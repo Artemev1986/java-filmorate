@@ -13,22 +13,13 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
     }
 
     @Override
-    public void addLikeForReview(long reviewId, long userId) {
-
+    public void addLikeDislikeForReview(long reviewId, long userId, boolean isUseful) {
+        jdbcTemplate.update("INSERT INTO review_likes (review_id, user_id, is_useful) VALUES (?, ?, ?);",
+                reviewId, userId, isUseful);
     }
 
     @Override
-    public void addDislikeForReview(long reviewId, long userId) {
-
-    }
-
-    @Override
-    public void deleteLikeForReview(long reviewId, long userId) {
-
-    }
-
-    @Override
-    public void deleteDislikeForReview(long reviewId, long userId) {
-
+    public void deleteLikeDislikeForReview(long reviewId, long userId) {
+        jdbcTemplate.update("DELETE FROM review_likes WHERE review_id = ? AND user_id = ?;", reviewId, userId);
     }
 }
