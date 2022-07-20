@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.ReviewLikeService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
@@ -15,11 +14,9 @@ import java.util.List;
 @RequestMapping("/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
-    private final ReviewLikeService reviewLikeService;
 
-    public ReviewController(ReviewService reviewService, ReviewLikeService reviewLikeService) {
+    public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
-        this.reviewLikeService = reviewLikeService;
     }
 
     @PostMapping()
@@ -55,25 +52,25 @@ public class ReviewController {
 
     @PutMapping("/{id}/like/{userId}")
     public long addLikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
-        reviewLikeService.addLikeForReview(id, userId);
+        reviewService.addLikeForReview(id, userId);
         return userId;
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public long addDislikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
-        reviewLikeService.addDislikeForReview(id, userId);
+        reviewService.addDislikeForReview(id, userId);
         return userId;
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public long deleteLikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
-        reviewLikeService.deleteLikeForReview(id, userId);
+        reviewService.deleteLikeForReview(id, userId);
         return userId;
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
     public long deleteDislikeForReview(@Valid @PathVariable long id, @PathVariable long userId) {
-        reviewLikeService.deleteDislikeForReview(id, userId);
+        reviewService.deleteDislikeForReview(id, userId);
         return userId;
     }
 }

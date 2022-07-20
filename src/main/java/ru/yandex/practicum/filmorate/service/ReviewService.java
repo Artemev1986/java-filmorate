@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.ReviewLikeStorage;
 import ru.yandex.practicum.filmorate.storage.film.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -15,12 +16,14 @@ import java.util.List;
 @Service
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final ReviewLikeStorage reviewLikeStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage, FilmStorage filmStorage, UserStorage userStorage) {
+    public ReviewService(ReviewStorage reviewStorage, ReviewLikeStorage reviewLikeStorage, FilmStorage filmStorage, UserStorage userStorage) {
         this.reviewStorage = reviewStorage;
+        this.reviewLikeStorage = reviewLikeStorage;
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -68,5 +71,22 @@ public class ReviewService {
         List<Review> reviews = reviewStorage.getReviews(count);
         log.debug("Get {} reviews", reviews.size());
         return reviews;
+    }
+
+    public void addLikeForReview (long reviewId, long userId) {
+        reviewLikeStorage.addLikeDislikeForReview(reviewId, userId, true);
+        log.debug("Like for the review with id {} added by user with id {}", reviewId, userId);
+    }
+    public void addDislikeForReview (long reviewId, long userId) {
+        reviewLikeStorage.addLikeDislikeForReview(reviewId, userId, false);
+        log.debug("Dislike for the review with id {} added by user with id {}", reviewId, userId);
+    }
+    public void deleteLikeForReview (long reviewId, long userId) {
+        reviewLikeStorage.deleteLikeDislikeForReview(reviewId, userId);
+        log.debug("Like for the review with id {} deleted by user with id {}", reviewId, userId);
+    }
+    public void deleteDislikeForReview (long reviewId, long userId) {
+        reviewLikeStorage.deleteLikeDislikeForReview(reviewId, userId);
+        log.debug("Dislike for the review with id {} deleted by user with id {}", reviewId, userId);
     }
 }
