@@ -5,7 +5,10 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,9 +18,15 @@ import java.util.Optional;
 @Component()
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreStorage genreStorage;
+    private final LikeStorage likeStorage;
+    private final DirectorStorage directorStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreStorage genreStorage, LikeStorage likeStorage, DirectorStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genreStorage = genreStorage;
+        this.likeStorage = likeStorage;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -34,8 +43,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId());
+
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM films ORDER BY film_id DESC LIMIT 1;");
-        if(filmRows.next()) {
+        if (filmRows.next()) {
             film.setId(filmRows.getLong("film_id"));
         }
         return film;
@@ -70,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                 "m.description AS m_description, " +
                 "f.release_date AS f_release_date " +
                 "FROM films AS f " +
-                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;", (rs, rowNum) -> makeFilm(rs));
+                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id ", (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
@@ -102,17 +112,57 @@ public class FilmDbStorage implements FilmStorage {
                 "m.description AS m_description, " +
                 "f.release_date AS f_release_date " +
                 "FROM (SELECT * FROM films AS f WHERE film_id=?) AS f " +
-                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;", (rs) -> {
+                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id ", (rs) -> {
             if (rs.next()) {
                 return makeFilm(rs);
             }
             return null;
-            }, id));
+        }, id));
     }
 
     @Override
     public void deleteFilmById(long id) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?;", id);
+    }
+
+    @Override
+    public List<Film> getDirectorFilmsSortYear(long id) {
+        return jdbcTemplate.query("SELECT f.film_id AS f_id, " +
+                "f.name AS f_name, " +
+                "f.description AS f_description, " +
+                "f.duration AS f_duration, " +
+                "m.MPA_id AS m_id, " +
+                "m.name AS m_name, " +
+                "m.description AS m_description, " +
+                "f.release_date AS f_release_date " +
+                "FROM films AS f " +
+                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id " +
+                "LEFT JOIN FILM_DIRECTORS AS fd on f.FILM_ID = fd.FILM_ID " +
+                "WHERE fd.DIRECTOR_ID = ? " +
+                "ORDER BY RELEASE_DATE ;", (rs, rowNum) -> makeFilm(rs), id);
+    }
+
+    @Override
+    public List<Film> getDirectorFilmsSortLikes(long id) {
+        return jdbcTemplate.query("SELECT f.film_id AS f_id, " +
+                "                 f.name AS f_name, " +
+                "                 f.description AS f_description, " +
+                "                 f.duration AS f_duration, " +
+                "                 m.MPA_id AS m_id, " +
+                "                 m.name AS m_name, " +
+                "                 m.description AS m_description, " +
+                "                 f.release_date AS f_release_date, " +
+                "                 FD.DIRECTOR_ID, " +
+                "                 D.NAME " +
+                "                 FROM films AS f " +
+                "                 LEFT JOIN " +
+                "                 (SELECT film_id, COUNT(user_id) as cnt FROM likes " +
+                "                 group by film_id ) AS l ON f.film_id = l.film_id " +
+                "                 LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id " +
+                "                 left join FILM_DIRECTORS FD on f.FILM_ID = FD.FILM_ID " +
+                "                 left join DIRECTORS D on FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "                 where D.DIRECTOR_ID = ? " +
+                "                 order by cnt  ;", (rs, rowNum) -> makeFilm(rs), id);
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
@@ -122,6 +172,9 @@ public class FilmDbStorage implements FilmStorage {
         film.setDescription(rs.getString("f_description"));
         film.setReleaseDate(rs.getDate("f_release_date").toLocalDate());
         film.setDuration(rs.getInt("f_duration"));
+        film.setLikes(likeStorage.getLikesByFilmId(film.getId()));
+        film.setGenres(genreStorage.getGenresByFilmId(film.getId()));
+        film.setDirectors(directorStorage.getDirectorByFilmId(film.getId()));
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("m_id"));
         mpa.setName(rs.getString("m_name"));
