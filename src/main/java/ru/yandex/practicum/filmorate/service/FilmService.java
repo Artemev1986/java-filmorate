@@ -39,7 +39,7 @@ public class FilmService {
             film.getDirectors().forEach(directors -> directorStorage.addDirectorByFilm(film.getId(), directors.getId()));
         }
         log.debug("Adding new film with id: {}", film.getId());
-        return film;
+        return getFilmById(film.getId());
     }
 
     public Film updateFilm(Film film) {

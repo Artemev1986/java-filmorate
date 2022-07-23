@@ -118,10 +118,4 @@ class FilmDbStorageTest {
         Optional<Film> filmOptional = filmDbStorage.getFilmById(1);
         assertThat(filmOptional.orElse(null)).isNull();
     }
-
-
-
-
-
-
 }
