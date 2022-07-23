@@ -40,6 +40,7 @@ public class DirectorService {
     }
 
     public Director getDirectorById(long id) {
+        log.debug("Get Director by id({})", id);
         return directorStorage.getDirectorById(id).
                 orElseThrow(() -> new NotFoundException("Director with id (" + id + ") not found")
                 );
