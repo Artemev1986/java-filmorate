@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component()
@@ -32,7 +33,7 @@ public class UserDbStorage implements UserStorage {
                 user.getLogin(),
                 user.getBirthday());
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users ORDER BY user_id DESC LIMIT 1;");
-        if(userRows.next())
+        if (userRows.next())
             user.setId(userRows.getLong("user_id"));
         return user;
     }
@@ -61,7 +62,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> getUserById(long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE user_id = ?;", id);
-        if(userRows.next()) {
+        if (userRows.next()) {
             User user = new User();
             user.setId(userRows.getLong("user_id"));
             user.setName(userRows.getString("name"));
@@ -100,11 +101,30 @@ public class UserDbStorage implements UserStorage {
     public Optional<Boolean> isConfirmFriend(Long userId, Long friendId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT is_confirmed FROM friends WHERE user_id = ?" +
                 " AND friend_id = ?;", userId, friendId);
-        if(userRows.next()) {
+        if (userRows.next()) {
             return Optional.of(userRows.getBoolean("is_confirmed"));
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<Long> getUserIdsForRecommendations(Long userId) {
+        return jdbcTemplate.query("SELECT l2.user_id AS similar_user_id " +
+                        "FROM likes AS l1 " +
+                        "JOIN likes AS l2 ON l1.film_id = l2.film_id AND l1.user_id <> l2.user_id " +
+                        "WHERE l1.user_id = ? " +
+                        "GROUP BY similar_user_id " +
+                        "HAVING count(*) = ( " +
+                        "    SELECT count(*) AS max_matches_amount " +
+                        "    FROM likes AS l3 " +
+                        "             JOIN likes AS l4 ON l3.film_id = l4.film_id AND l3.user_id <> l4.user_id " +
+                        "    WHERE l3.user_id = ? " +
+                        "    GROUP BY l4.user_id " +
+                        "    ORDER BY count(*) DESC " +
+                        "    LIMIT 1 " +
+                        "    );",
+                (rs, rowNum) -> rs.getLong("similar_user_id"), userId, userId);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
@@ -123,5 +143,4 @@ public class UserDbStorage implements UserStorage {
                 (rs, rowNum) -> rs.getLong("friend_id"), id);
         return Set.copyOf(friends);
     }
-
 }

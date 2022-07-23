@@ -31,4 +31,10 @@ public class LikeDbStorage implements LikeStorage {
                 (rs, rowNum) -> rs.getLong("user_id"), id);
         return Set.copyOf(likes);
     }
+
+    @Override
+    public List<Long> getFilmIdsByUserId(Long userId) {
+        return jdbcTemplate.query("SELECT film_id FROM likes WHERE user_id = ?;",
+                (rs, rowNum) -> rs.getLong("film_id"), userId);
+    }
 }
