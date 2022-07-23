@@ -27,7 +27,7 @@ public class DirectorService {
     }
 
     public Director updateDirector(Director director) {
-        getDirectorById(director.getId()); //Will throw an exception if there is no film with id
+        getDirectorById(director.getId()); //Will throw an exception if there is no director with id
         directorStorage.updateDirector(director);
         log.debug("Director with id ({}) was updated", director.getId());
         return getDirectorById(director.getId());
