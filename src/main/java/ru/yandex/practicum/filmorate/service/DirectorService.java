@@ -47,7 +47,7 @@ public class DirectorService {
     }
 
     public void deleteDirectorById(long id) {
-        getDirectorById(id); //Will throw an exception if there is no film with id
+        getDirectorById(id); //Will throw an exception if there is no director with id
         directorStorage.deleteDirectorById(id);
         log.debug("Director with id ({}) was deleted", id);
     }
