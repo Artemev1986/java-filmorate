@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.ReviewLikeStorage;
 import ru.yandex.practicum.filmorate.storage.film.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.user.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -19,13 +20,16 @@ public class ReviewService {
     private final ReviewLikeStorage reviewLikeStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage, ReviewLikeStorage reviewLikeStorage, FilmStorage filmStorage, UserStorage userStorage) {
+    public ReviewService(ReviewStorage reviewStorage, ReviewLikeStorage reviewLikeStorage, FilmStorage filmStorage,
+                         UserStorage userStorage, FeedStorage feedStorage) {
         this.reviewStorage = reviewStorage;
         this.reviewLikeStorage = reviewLikeStorage;
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.feedStorage = feedStorage;
     }
 
     public Review addReview (Review review) {
@@ -34,6 +38,7 @@ public class ReviewService {
         filmStorage.getFilmById(review.getFilmId())
                 .orElseThrow(() -> new NotFoundException("Film with id (" + review.getFilmId() + ") not found"));
         reviewStorage.addReview(review);
+        feedStorage.addInFeed(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
         log.debug("The review with id {} added", review.getReviewId());
         return review;
     }
@@ -44,12 +49,14 @@ public class ReviewService {
         filmStorage.getFilmById(review.getFilmId())
                 .orElseThrow(() -> new NotFoundException("Film with id (" + review.getFilmId() + ") not found"));
         reviewStorage.updateReview(review);
+        feedStorage.addInFeed(getReviewById(review.getReviewId()).getReviewId(), "REVIEW", "UPDATE", review.getReviewId());
         log.debug("The review with id {} updated", review.getReviewId());
         return getReviewById(review.getReviewId());
     }
 
     public void deleteReviewById(long id) {
         getReviewById(id); //Will throw an exception if there is no review with id
+        feedStorage.addInFeed(getReviewById(id).getUserId(), "REVIEW", "REMOVE", id);
         reviewStorage.deleteReviewById(id);
         log.debug("The review with id {} deleted", id);
     }

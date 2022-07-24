@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
@@ -15,10 +17,12 @@ import java.util.Set;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FeedStorage feedStorage) {
         this.userStorage = userStorage;
+        this.feedStorage = feedStorage;
     }
     public List<User> findAll() {
         log.debug("Current user counts: {}", userStorage.findAll().size());
@@ -55,6 +59,7 @@ public class UserService {
         getUserById(friendId); //Will throw an exception if there is no user with id
         getUserById(userId);
         userStorage.addFriend(userId, friendId);
+        feedStorage.addInFeed(userId, "FRIEND", "ADD", friendId);
         log.debug("{} added {} as a friend",
                 getUserById(userId).getName(),
                 getUserById(friendId).getName());
@@ -64,6 +69,8 @@ public class UserService {
         getUserById(friendId); //Will throw an exception if there is no user with id
         getUserById(userId);
         userStorage.deleteFriend(userId, friendId);
+        userStorage.deleteFriend(friendId, userId);
+        feedStorage.addInFeed(userId, "FRIEND", "REMOVE", friendId);
         log.debug("{} deleted {} from friends",
                 getUserById(userId).getName(),
                 getUserById(friendId).getName());
@@ -84,6 +91,12 @@ public class UserService {
         commonFriendList.retainAll(secondFriendList);
         log.debug("Current common friend counts: {}", commonFriendList.size());
         return commonFriendList;
+    }
+
+    public List<Feed> getFeedByUserId(long userId) {
+        log.debug("Feed search by user id: {}", userId);
+        List<Feed> feed = feedStorage.getFeedByUserId(userId);
+        return feed;
     }
 
     private void checkName(User user) {

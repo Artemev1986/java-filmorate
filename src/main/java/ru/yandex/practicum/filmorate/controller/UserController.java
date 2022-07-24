@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -57,7 +58,7 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public long deleteFriend(@Valid @PathVariable long id, @PathVariable long friendId) {
         userService.deleteFriend(id, friendId);
-        userService.deleteFriend(friendId, id);
+       // userService.deleteFriend(friendId, id);
         return friendId;
     }
 
@@ -69,5 +70,10 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> findCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Feed> getFeedByUserId(@PathVariable long id) {
+        return userService.getFeedByUserId(id);
     }
 }
