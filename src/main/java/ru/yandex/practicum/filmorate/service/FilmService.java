@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 
 import java.util.List;
@@ -20,13 +21,15 @@ public class FilmService {
 
 
     private final DirectorStorage directorStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage, DirectorStorage directorStorage) {
+    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage, DirectorStorage directorStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
 
         this.directorStorage = directorStorage;
+        this.userStorage = userStorage;
 
     }
 
@@ -105,9 +108,16 @@ public class FilmService {
         return films;
     }
 
-    public List<Film> searchForFilms(String query, String by){
+    public List<Film> searchForFilms(String query, String by) {
         List<Film> films = filmStorage.searchForFilms(query, by);
-        log.debug ("Get search {} query = "+ query + " by = " + by);
+        log.debug("Get search {} query = " + query + " by = " + by);
         return films;
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
+        log.debug("Get common films between users id={} and id={} sorted films by likes", userId, friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 }
