@@ -111,7 +111,7 @@ public class UserService {
                 .map(Optional::get)
                 .collect(Collectors.toSet());
         recommendations.removeAll(userFilms);
-        log.info("Recommendations for user {}: {}", id, recommendations);
+        log.debug("Recommendations for user {}: {}", id, recommendations);
         return recommendations;
     }
 
