@@ -48,6 +48,8 @@ public class ReviewService {
                 .orElseThrow(() -> new NotFoundException("User with id (" + review.getUserId() + ") not found"));
         filmStorage.getFilmById(review.getFilmId())
                 .orElseThrow(() -> new NotFoundException("Film with id (" + review.getFilmId() + ") not found"));
+        reviewStorage.getReviewById(review.getReviewId())
+                .orElseThrow(() -> new NotFoundException("Review with id (" + review.getReviewId() + ") not found"));
         reviewStorage.updateReview(review);
         feedStorage.addInFeed(getReviewById(review.getReviewId()).getReviewId(), "REVIEW", "UPDATE", review.getReviewId());
         log.debug("The review with id {} updated", review.getReviewId());
@@ -55,7 +57,6 @@ public class ReviewService {
     }
 
     public void deleteReviewById(long id) {
-        getReviewById(id); //Will throw an exception if there is no review with id
         feedStorage.addInFeed(getReviewById(id).getUserId(), "REVIEW", "REMOVE", id);
         reviewStorage.deleteReviewById(id);
         log.debug("The review with id {} deleted", id);
