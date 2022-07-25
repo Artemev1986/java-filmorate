@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component()
 public class FilmDbStorage implements FilmStorage {
@@ -205,16 +206,43 @@ public class FilmDbStorage implements FilmStorage {
 
         switch (by) {
             case "director":
-                return jdbcTemplate.query (searchDirectorSql, (rs, rowNum) -> makeFilm (rs), query);
+                return jdbcTemplate.query(searchDirectorSql, (rs, rowNum) -> makeFilm(rs), query);
             case "title":
-                return jdbcTemplate.query (searchFilmSql, (rs, rowNum) -> makeFilm (rs), query);
+                return jdbcTemplate.query(searchFilmSql, (rs, rowNum) -> makeFilm(rs), query);
             case "director,title":
-                return jdbcTemplate.query (searchForDirectorAndTitle, (rs, rowNum) -> makeFilm (rs), query, query);
+                return jdbcTemplate.query(searchForDirectorAndTitle, (rs, rowNum) -> makeFilm(rs), query, query);
             case "title,director":
-                return jdbcTemplate.query (searchForTitleAndDirector, (rs, rowNum) -> makeFilm (rs), query, query);
+                return jdbcTemplate.query(searchForTitleAndDirector, (rs, rowNum) -> makeFilm(rs), query, query);
             default:
-                return getPopularFilms (10);
+                return getPopularFilms(10);
         }
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        List<Film> userFilms = getFilmsByUserId(userId);
+        List<Film> friendFilms = getFilmsByUserId(friendId);
+
+        return userFilms.stream()
+                .filter(friendFilms::contains)
+                .collect(Collectors.toList());
+    }
+
+    private List<Film> getFilmsByUserId(long id) {
+        return jdbcTemplate.query("SELECT f.film_id AS f_id, " +
+                "f.name AS f_name, " +
+                "f.description AS f_description, " +
+                "f.duration AS f_duration, " +
+                "m.MPA_id AS m_id, " +
+                "m.name AS m_name, " +
+                "m.description AS m_description, " +
+                "f.release_date AS f_release_date " +
+                "FROM films AS f " +
+                "LEFT JOIN" +
+                "(SELECT film_id, user_id, COUNT(user_id) as cnt FROM likes " +
+                "group by user_id ) AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id " +
+                "WHERE l.user_id = ?" +
+                "order by cnt DESC;", (rs, rowNum) -> makeFilm(rs), id);
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
