@@ -115,8 +115,10 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-        userStorage.getUserById(userId);
-        userStorage.getUserById(friendId);
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id (" + friendId + ") not found"));
         log.debug("Get common films between users id={} and id={} sorted films by likes", userId, friendId);
         return filmStorage.getCommonFilms(userId, friendId);
     }
