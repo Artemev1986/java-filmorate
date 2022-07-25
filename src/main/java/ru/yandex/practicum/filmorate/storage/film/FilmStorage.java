@@ -21,4 +21,6 @@ public interface FilmStorage {
     List<Film> getDirectorFilmsSortYear(long id);
 
     List<Film> getDirectorFilmsSortLikes(long id);
+
+    List<Film> searchForFilms (String query, String by);
 }
