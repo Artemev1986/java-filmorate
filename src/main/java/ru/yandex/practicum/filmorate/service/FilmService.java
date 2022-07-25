@@ -104,4 +104,10 @@ public class FilmService {
         log.debug("Get director {} sorted films by likes", id);
         return films;
     }
+
+    public List<Film> searchForFilms(String query, String by){
+        List<Film> films = filmStorage.searchForFilms(query, by);
+        log.debug ("Get search {} query = "+ query + " by = " + by);
+        return films;
+    }
 }

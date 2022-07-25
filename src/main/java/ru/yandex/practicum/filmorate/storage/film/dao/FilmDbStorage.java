@@ -165,6 +165,58 @@ public class FilmDbStorage implements FilmStorage {
                 "                 order by cnt  ;", (rs, rowNum) -> makeFilm(rs), id);
     }
 
+    @Override
+    public List<Film> searchForFilms (String query, String by) {
+
+        final String searchFilmSql = "SELECT F.FILM_ID AS f_id, " +
+                "F.NAME AS f_name, " +
+                "F.DESCRIPTION AS f_description, " +
+                "F.DURATION AS f_duration, " +
+                "M.MPA_ID AS m_id, " +
+                "M.NAME AS m_name, " +
+                "M.DESCRIPTION AS m_description, " +
+                "F.RELEASE_DATE AS f_release_date " +
+                "FROM FILMS AS F " +
+                "LEFT JOIN" +
+                "(SELECT FILM_ID, COUNT(USER_ID) as cnt FROM LIKES " +
+                "GROUP BY FILM_ID ) AS L ON F.FILM_ID = L.FILM_ID " +
+                "LEFT JOIN MPA AS M ON F.MPA_ID=M.MPA_ID " +
+                "WHERE UPPER(F.NAME) LIKE UPPER ('%'||?||'%')";
+
+        final String searchDirectorSql = "SELECT F.FILM_ID AS f_id, " +
+                "F.NAME AS f_name, " +
+                "F.DESCRIPTION AS f_description, " +
+                "F.DURATION AS f_duration, " +
+                "M.MPA_ID AS m_id, " +
+                "M.NAME AS m_name, " +
+                "M.DESCRIPTION AS m_description, " +
+                "F.RELEASE_DATE AS f_release_date " +
+                "FROM FILMS AS F " +
+                "LEFT JOIN" +
+                "(SELECT FILM_ID, COUNT(USER_ID) as cnt FROM LIKES " +
+                "GROUP BY FILM_ID ) AS L ON F.FILM_ID = L.FILM_ID " +
+                "LEFT JOIN MPA AS M ON F.MPA_ID=M.MPA_ID " +
+                "JOIN FILM_DIRECTORS AS DF ON f.FILM_ID = df.FILM_ID " +
+                "JOIN DIRECTORS D ON DF.DIRECTOR_ID=D.DIRECTOR_ID " +
+                "WHERE UPPER(D.NAME) LIKE UPPER('%'||?||'%')";
+
+        final String searchForDirectorAndTitle = searchFilmSql + " UNION ALL " + searchDirectorSql;
+        final String searchForTitleAndDirector = searchDirectorSql + " UNION ALL " + searchFilmSql;
+
+        switch (by) {
+            case "director":
+                return jdbcTemplate.query (searchDirectorSql, (rs, rowNum) -> makeFilm (rs), query);
+            case "title":
+                return jdbcTemplate.query (searchFilmSql, (rs, rowNum) -> makeFilm (rs), query);
+            case "director,title":
+                return jdbcTemplate.query (searchForDirectorAndTitle, (rs, rowNum) -> makeFilm (rs), query, query);
+            case "title,director":
+                return jdbcTemplate.query (searchForTitleAndDirector, (rs, rowNum) -> makeFilm (rs), query, query);
+            default:
+                return getPopularFilms (10);
+        }
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("f_id"));
