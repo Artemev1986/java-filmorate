@@ -106,6 +106,8 @@ public class FilmService {
     }
 
     public List<Film> searchForFilms(String query, String by){
-        return filmStorage.searchForFilms(query, by);
+        List<Film> films = filmStorage.searchForFilms(query, by);
+        log.debug ("Get search {} query = "+ query + " by = " + by);
+        return films;
     }
 }
