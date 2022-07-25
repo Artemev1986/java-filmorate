@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import java.util.List;
 import java.util.Set;
 
 public interface LikeStorage {
@@ -8,4 +9,6 @@ public interface LikeStorage {
     void deleteLike(Long filmId, Long userId);
 
     Set<Long> getLikesByFilmId(Long id);
+
+    List<Long> getFilmIdsByUserId(Long userId);
 }
