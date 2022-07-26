@@ -51,7 +51,7 @@ public class ReviewService {
         reviewStorage.getReviewById(review.getReviewId())
                 .orElseThrow(() -> new NotFoundException("Review with id (" + review.getReviewId() + ") not found"));
         reviewStorage.updateReview(review);
-        feedStorage.addInFeed(getReviewById(review.getReviewId()).getReviewId(), "REVIEW", "UPDATE", review.getReviewId());
+        feedStorage.addInFeed(getReviewById(review.getReviewId()).getUserId(), "REVIEW", "UPDATE", review.getReviewId());
         log.debug("The review with id {} updated", review.getReviewId());
         return getReviewById(review.getReviewId());
     }
