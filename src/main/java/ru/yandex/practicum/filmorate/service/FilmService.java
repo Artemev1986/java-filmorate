@@ -88,8 +88,8 @@ public class FilmService {
         log.debug("Film with id ({}) was deleted", id);
     }
 
-    public List<Film> getPopularFilms(long count) {
-        List<Film> films = filmStorage.getPopularFilms(count);
+    public List<Film> getPopularFilms(long count, Long year, Long genreId) {
+        List<Film> films = filmStorage.getPopularFilms(count, year, genreId);
         log.debug("Get {} popular films", count);
         return films;
     }

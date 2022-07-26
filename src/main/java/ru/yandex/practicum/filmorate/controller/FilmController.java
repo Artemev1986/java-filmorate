@@ -53,8 +53,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") long count) {
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") long count,
+                                      @RequestParam(name = "year", required = false) Long year,
+                                      @RequestParam(name = "genreId", required = false) Long genreId) {
+        return filmService.getPopularFilms(count, year, genreId);
     }
 
     @PutMapping("/{id}/like/{userId}")

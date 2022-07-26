@@ -85,21 +85,30 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(long count) {
-        return jdbcTemplate.query("SELECT f.film_id AS f_id, " +
-                "f.name AS f_name, " +
-                "f.description AS f_description, " +
-                "f.duration AS f_duration, " +
-                "m.MPA_id AS m_id, " +
-                "m.name AS m_name, " +
-                "m.description AS m_description, " +
-                "f.release_date AS f_release_date " +
-                "FROM films AS f " +
-                "LEFT JOIN" +
-                "(SELECT film_id, COUNT(user_id) as cnt FROM likes " +
-                "group by film_id ) AS l ON f.film_id = l.film_id " +
-                "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id " +
-                "order by cnt DESC LIMIT ?;", (rs, rowNum) -> makeFilm(rs), count);
+    public List<Film> getPopularFilms(long count, Long year, Long genreId) {
+        return jdbcTemplate.query("SELECT DISTINCT f.film_id AS f_id, " +
+                        "f.name AS f_name, " +
+                        "f.description AS f_description, " +
+                        "f.duration AS f_duration, " +
+                        "m.MPA_id AS m_id, " +
+                        "m.name AS m_name, " +
+                        "m.description AS m_description, " +
+                        "f.release_date AS f_release_date," +
+                        "l.cnt " +
+                        "FROM films AS f " +
+                        "LEFT JOIN" +
+                        "(SELECT film_id, COUNT(user_id) as cnt FROM likes " +
+                        "GROUP BY  film_id ) AS l ON f.film_id = l.film_id " +
+                        "LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id " +
+                        "LEFT JOIN FILM_GENRE AS fg ON f.FILM_ID = fg.FILM_ID " +
+                        "LEFT JOIN GENRES AS g ON fg.GENRE_ID = g.GENRE_ID " +
+                        "WHERE CASE WHEN ? IS NOT NULL AND ? IS NOT NULL THEN YEAR(RELEASE_DATE) = ? AND g.GENRE_ID = ? " +
+                        " WHEN ? IS NOT NULL THEN YEAR(RELEASE_DATE) = ? " +
+                        " WHEN ? IS NOT NULL THEN g.GENRE_ID = ? " +
+                        " WHEN ? IS NULL AND ? IS NULL  THEN 1=1 END  " +
+                        "ORDER BY cnt DESC LIMIT ?;"
+                , (rs, rowNum) -> makeFilm(rs)
+                , year, genreId, year, genreId, year, year, genreId, genreId, year, genreId, count);
     }
 
     @Override
@@ -167,7 +176,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchForFilms (String query, String by) {
+    public List<Film> searchForFilms(String query, String by) {
 
         final String searchFilmSql = "SELECT F.FILM_ID AS f_id, " +
                 "F.NAME AS f_name, " +
@@ -214,7 +223,7 @@ public class FilmDbStorage implements FilmStorage {
             case "title,director":
                 return jdbcTemplate.query(searchForTitleAndDirector, (rs, rowNum) -> makeFilm(rs), query, query);
             default:
-                return getPopularFilms(10);
+                return getPopularFilms(10, null, null);
         }
     }
 
