@@ -98,7 +98,7 @@ class LikeDbStorageTest {
         likeDbStorage.addLike(2L, 2L);
         likeDbStorage.addLike(2L, 3L);
 
-        List<Film> films = filmDbStorage.getPopularFilms(1);
+        List<Film> films = filmDbStorage.getPopularFilms(1,null,null);
 
         Optional<Film> filmOptional = Optional.of(films.get(0));
         assertThat(filmOptional)
