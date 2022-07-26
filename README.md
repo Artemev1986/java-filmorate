@@ -21,7 +21,14 @@ The following commands are available in this service:
 - Get a film by its Id;
 - Get top N films sorted in descending order of rating;
 - Get a list of all film genres;
-- Get a list of all film age ratings.
+- Get a list of all film age ratings;
+- List of the most popular films by genre and year;
+- adding reviews and their usefulness;
+- Get recommendations for films to watch;
+- Add directors;
+- Search films;
+- Get the user's event feed;
+- Returns a list of films sorted by popularity.
 
 ## Database
 
@@ -73,12 +80,40 @@ This table contains information about users:
 - **name** - user name;
 - **birthday** - user's birthday.
 
-#### Таблица *friends*
+#### *friends*
 This table contains information about users' friends:
 
 - **user_id** - user ID;
 - **friend_id** - friend ID;
 - **is_confirm** - friendship status.
+
+#### *review*
+- **review_id** - review ID;
+- **content** - content;
+- **is_positive** - false - positive, true - negative;
+- **film_id** - film ID;
+- **user_id** - user ID;
+
+#### *review_likes*
+- **review_id** - review ID;
+- **user_id** - user ID;
+- **is_useful** - false - positive, true - negative;
+
+#### *directors*
+- **director_id bigint** - director ID;
+- **name** - director's name;
+
+#### *film_directors*
+- **film_id** - film ID;
+- **director_id** - director ID;
+
+#### *feed*
+- **event_id** - event ID;
+- **user_id** - user ID;
+- **entity_id** - entity ID;
+- **event_type** - event type;
+- **operation** - operation;
+- **time** - event time;
 
 ### Main SQL queries for films:
 
