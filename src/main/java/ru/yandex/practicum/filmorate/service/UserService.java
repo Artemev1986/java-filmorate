@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.storage.user.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.user.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
@@ -25,16 +26,18 @@ public class UserService {
     private final LikeStorage likeStorage;
     private final FilmStorage filmStorage;
     private final FeedStorage feedStorage;
+    private final FriendStorage friendStorage;
 
     @Autowired
     public UserService(UserStorage userStorage,
                        LikeStorage likeStorage,
                        FilmStorage filmStorage,
-                       FeedStorage feedStorage) {
+                       FeedStorage feedStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
         this.filmStorage = filmStorage;
         this.feedStorage = feedStorage;
+        this.friendStorage = friendStorage;
     }
 
     public List<User> findAll() {
@@ -71,7 +74,7 @@ public class UserService {
     public void addFriend(long userId, long friendId) {
         getUserById(friendId); //Will throw an exception if there is no user with id
         getUserById(userId);
-        userStorage.addFriend(userId, friendId);
+        friendStorage.addFriend(userId, friendId);
         feedStorage.addInFeed(userId, "FRIEND", "ADD", friendId);
         log.debug("{} added {} as a friend",
                 getUserById(userId).getName(),
@@ -81,8 +84,8 @@ public class UserService {
     public void deleteFriend(long userId, long friendId) {
         getUserById(friendId); //Will throw an exception if there is no user with id
         getUserById(userId);
-        userStorage.deleteFriend(userId, friendId);
-        userStorage.deleteFriend(friendId, userId);
+        friendStorage.deleteFriend(userId, friendId);
+        friendStorage.deleteFriend(friendId, userId);
         feedStorage.addInFeed(userId, "FRIEND", "REMOVE", friendId);
         log.debug("{} deleted {} from friends",
                 getUserById(userId).getName(),
@@ -125,8 +128,8 @@ public class UserService {
     }
 
     public List<Feed> getFeedByUserId(long userId) {
-        log.debug("Feed search by user id: {}", userId);
         List<Feed> feed = feedStorage.getFeedByUserId(userId);
+        log.debug("Feed search by user id: {}", userId);
         return feed;
     }
 
