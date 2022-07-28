@@ -115,31 +115,7 @@ This table contains information about users' friends:
 - **operation** - operation;
 - **time** - event time;
 
-### Main SQL queries for films:
-
-    SQL_GET_FILM_BY_ID = SELECT 
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM (SELECT * FROM films AS f WHERE film_id=?) AS f
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;
-
-    SQL_GET_ALL_FILMS = SELECT 
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM films AS f
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;
+### Examples SQL queries for films:
 
     SQL_ADD_FILM = INSERT INTO films (
             name,
@@ -164,23 +140,8 @@ This table contains information about users' friends:
     SQL_DELETE_GENRE = DELETE FROM film_genre WHERE film_id = ?;
     SQL_GET_ALL_MPA = SELECT * FROM MPA ORDER BY MPA_id;
     SQL_GET_ALL_GENRE = SELECT * FROM genres ORDER BY genre_id;
-    SQL_GET_POPULAR_FILMS = SELECT
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM films AS f
-            LEFT JOIN
-            (SELECT film_id, COUNT(user_id) as cnt FROM likes
-            GROUP BY film_id ) AS l ON f.film_id = l.film_id
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id
-            ORDER BY cnt DESC LIMIT ?;
 
-### Main SQL queries for users:
+### Examples SQL queries for users:
     SQL_GET_USERS = SELECT * FROM users ORDER BY user_id;
     SQL_GET_USER_BY_ID = SELECT * FROM users WHERE user_id = ?;
     SQL_ADD_USER = INSERT INTO users (name, email, login, birthday)
@@ -196,4 +157,3 @@ This table contains information about users' friends:
     SQL_GET_FRIEND_BY_ID = SELECT friend_id FROM friends WHERE user_id = ?;
     SQL_GET_STATUS_FRIEND = SELECT is_confirmed FROM friends WHERE user_id = ?
     AND FRIEND_ID = ?;
-    SQL_GET_LAST_ID = SELECT * FROM users ORDER BY user_id DESC LIMIT 1;
