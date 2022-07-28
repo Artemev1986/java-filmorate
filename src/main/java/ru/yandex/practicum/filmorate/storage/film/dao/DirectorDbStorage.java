@@ -1,14 +1,18 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component()
@@ -21,10 +25,15 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void addDirector(Director director) {
-        jdbcTemplate.update("INSERT INTO directors" +
-                        "(name) " +
-                        "VALUES (?);",
-                director.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((connection) -> {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO directors" +
+                    "(name) " +
+                    "VALUES (?);", new String[] {"director_id"});
+            ps.setString(1, director.getName());
+            return ps;
+        }, keyHolder);
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
     }
 
     @Override
