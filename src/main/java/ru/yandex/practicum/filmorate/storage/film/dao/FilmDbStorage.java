@@ -1,15 +1,22 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.film.*;
+import ru.yandex.practicum.filmorate.storage.film.FilmDirectorsStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.LikeStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,23 +37,24 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        jdbcTemplate.update("INSERT INTO films" +
-                        "(name," +
-                        " description," +
-                        " release_date," +
-                        " duration," +
-                        " MPA_id) " +
-                        "VALUES (?, ?, ?, ?, ?);",
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa().getId());
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM films ORDER BY film_id DESC LIMIT 1;");
-        if (filmRows.next()) {
-            film.setId(filmRows.getLong("film_id"));
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((connection) -> {
+            PreparedStatement ps =
+                    connection.prepareStatement("INSERT INTO films" +
+                            "(name," +
+                            " description," +
+                            " release_date," +
+                            " duration," +
+                            " MPA_id) " +
+                            "VALUES (?, ?, ?, ?, ?);", new String[] {"film_id"});
+            ps.setString(1, film.getName());
+            ps.setString(2, film.getDescription());
+            ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+            ps.setLong(4, film.getDuration());
+            ps.setInt(5, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
+            film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return film;
     }
 

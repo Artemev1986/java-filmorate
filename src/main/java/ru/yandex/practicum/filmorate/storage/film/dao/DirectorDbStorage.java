@@ -25,31 +25,26 @@ public class DirectorDbStorage implements DirectorStorage {
                         "(name) " +
                         "VALUES (?);",
                 director.getName());
-        SqlRowSet filmRows = jdbcTemplate
-                .queryForRowSet("SELECT * FROM directors ORDER BY director_id DESC LIMIT 1;");
-        if (filmRows.next()) {
-            director.setId(filmRows.getLong("director_id"));
-        }
     }
 
     @Override
     public void updateDirector(Director director) {
         jdbcTemplate.update("UPDATE directors " +
                         "SET name = ? " +
-                        "WHERE DIRECTOR_ID = ?;",
+                        "WHERE director_id = ?;",
                 director.getName(),
                 director.getId());
     }
 
     @Override
     public List<Director> getAllDirector() {
-        return jdbcTemplate.query("SELECT * FROM directors ORDER BY DIRECTOR_ID;",
+        return jdbcTemplate.query("SELECT * FROM directors ORDER BY director_id;",
                 (rs, rowNum) -> makeDirector(rs));
     }
 
     @Override
     public Optional<Director> getDirectorById(long id) {
-        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE DIRECTOR_ID = ?;", id);
+        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE director_id = ?;", id);
         if (directorRows.next()) {
             Director director = new Director();
             director.setId(directorRows.getLong("director_id"));

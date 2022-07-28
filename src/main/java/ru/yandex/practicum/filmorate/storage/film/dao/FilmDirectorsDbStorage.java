@@ -30,7 +30,7 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     @Override
     public Set<Director> getDirectorByFilmId(Long film_id) {
         List<Long> directorIds = jdbcTemplate.query("SELECT director_id" +
-                        " FROM film_directors WHERE FILM_ID = ? ORDER BY FILM_ID;",
+                        " FROM film_directors WHERE film_id = ? ORDER BY FILM_ID;",
                 (rs, rowNum) -> rs.getLong("director_id"), film_id);
         if (directorIds.isEmpty()) {
             return new HashSet<>();

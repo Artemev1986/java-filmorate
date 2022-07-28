@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.storage.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,15 +31,21 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        jdbcTemplate.update("INSERT INTO users (name, email, login, birthday)" +
-                        " VALUES (?, ?, ?, ?);",
-                user.getName(),
-                user.getEmail(),
-                user.getLogin(),
-                user.getBirthday());
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users ORDER BY user_id DESC LIMIT 1;");
-        if (userRows.next())
-            user.setId(userRows.getLong("user_id"));
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((connection) -> {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO users" +
+                    "(name," +
+                    " email," +
+                    " login," +
+                    " birthday)" +
+                    " VALUES (?, ?, ?, ?);", new String[] {"user_id"});
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getLogin());
+            ps.setDate(4, Date.valueOf(user.getBirthday()));
+            return ps;
+        }, keyHolder);
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
