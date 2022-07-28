@@ -1,14 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.ReviewStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -21,20 +24,21 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review addReview(Review review) {
-        jdbcTemplate.update("INSERT INTO review" +
-                        "(content," +
-                        " is_positive," +
-                        " user_id," +
-                        " film_id)" +
-                        "VALUES (?, ?, ?, ?);",
-                review.getContent(),
-                review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId());
-        SqlRowSet reviewRows = jdbcTemplate.queryForRowSet("SELECT * FROM review ORDER BY review_id DESC LIMIT 1;");
-        if(reviewRows.next()) {
-            review.setReviewId(reviewRows.getLong("review_id"));
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((connection) -> {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO review" +
+                    "(content," +
+                    " is_positive," +
+                    " user_id," +
+                    " film_id)" +
+                    " VALUES (?, ?, ?, ?);", new String[] {"review_id"});
+            ps.setString(1, review.getContent());
+            ps.setBoolean(2, review.getIsPositive());
+            ps.setLong(3, review.getUserId());
+            ps.setLong(4, review.getFilmId());
+            return ps;
+        }, keyHolder);
+            review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return review;
     }
 

@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.*;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 
@@ -17,55 +15,55 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final GenreStorage genreStorage;
-
-
+    private final FilmGenreStorage filmGenreStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
+    private final FilmDirectorsStorage filmDirectorsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage, DirectorStorage directorStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, FilmGenreStorage filmGenreStorage,
+                       DirectorStorage directorStorage, UserStorage userStorage, FilmDirectorsStorage filmDirectorsStorage) {
         this.filmStorage = filmStorage;
-        this.genreStorage = genreStorage;
-
+        this.filmGenreStorage = filmGenreStorage;
         this.directorStorage = directorStorage;
         this.userStorage = userStorage;
-
+        this.filmDirectorsStorage = filmDirectorsStorage;
     }
 
     public Film addFilm(Film film) {
         filmStorage.addFilm(film);
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            film.getGenres().forEach(genre -> genreStorage.addGenre(film.getId(), genre.getId()));
+            film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
         }
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            film.getDirectors().forEach(directors -> directorStorage.addDirectorByFilm(film.getId(), directors.getId()));
+            film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
         }
+        Film filmFromStorage = getFilmById(film.getId());
         log.debug("Adding new film with id: {}", film.getId());
-        return getFilmById(film.getId());
+        return filmFromStorage;
     }
 
     public Film updateFilm(Film film) {
         getFilmById(film.getId()); //Will throw an exception if there is no film with id
         filmStorage.updateFilm(film);
         if (film.getGenres() != null) {
-            genreStorage.deleteGenres(film.getId());
+            filmGenreStorage.deleteGenres(film.getId());
             if (!film.getGenres().isEmpty())
-                film.getGenres().forEach(genre -> genreStorage.addGenre(film.getId(), genre.getId()));
+                film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
         }
         if (film.getDirectors() != null) {
-            directorStorage.deleteDirector(film.getId());
+            filmDirectorsStorage.deleteDirector(film.getId());
             if (!film.getDirectors().isEmpty())
-                film.getDirectors().forEach(directors -> directorStorage.addDirectorByFilm(film.getId(), directors.getId()));
+                film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
         } else {
-            directorStorage.deleteDirector(film.getId());
+            filmDirectorsStorage.deleteDirector(film.getId());
         }
-        Film film1 = filmStorage.getFilmById(film.getId()).orElseThrow(() -> new NotFoundException("Film with id (" + film.getId() + ") not found"));
-        if (film1.getDirectors().isEmpty()) {
-            film1.setDirectors(null);
+        Film filmFromStorage = filmStorage.getFilmById(film.getId()).orElseThrow(() -> new NotFoundException("Film with id (" + film.getId() + ") not found"));
+        if (filmFromStorage.getDirectors().isEmpty()) {
+            filmFromStorage.setDirectors(null);
         }
         log.debug("Film with id ({}) was updated", film.getId());
-        return film1;
+        return filmFromStorage;
     }
 
     public List<Film> findAllFilms() {
@@ -83,7 +81,6 @@ public class FilmService {
     }
 
     public void deleteFilmById(long id) {
-        getFilmById(id); //Will throw an exception if there is no film with id
         filmStorage.deleteFilmById(id);
         log.debug("Film with id ({}) was deleted", id);
     }
@@ -119,7 +116,8 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
         userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id (" + friendId + ") not found"));
+        List<Film> films = filmStorage.getCommonFilms(userId, friendId);
         log.debug("Get common films between users id={} and id={} sorted films by likes", userId, friendId);
-        return filmStorage.getCommonFilms(userId, friendId);
+        return films;
     }
 }

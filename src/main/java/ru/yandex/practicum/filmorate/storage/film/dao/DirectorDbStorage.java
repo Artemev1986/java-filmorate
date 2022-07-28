@@ -1,19 +1,19 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 
-
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component()
 public class DirectorDbStorage implements DirectorStorage {
@@ -25,52 +25,35 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void addDirector(Director director) {
-        jdbcTemplate.update("INSERT INTO directors" +
-                        "(name) " +
-                        "VALUES (?);",
-                director.getName());
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM DIRECTORS ORDER BY DIRECTOR_ID DESC LIMIT 1;");
-        if (filmRows.next()) {
-            director.setId(filmRows.getLong("director_id"));
-        }
-    }
-
-    @Override
-    public void addDirectorByFilm(Long film_id, Long director_id) {
-        jdbcTemplate.update("INSERT INTO FILM_DIRECTORS (film_id, director_id) VALUES ( ?, ? );", film_id, director_id);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update((connection) -> {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO directors" +
+                    "(name) " +
+                    "VALUES (?);", new String[] {"director_id"});
+            ps.setString(1, director.getName());
+            return ps;
+        }, keyHolder);
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
     }
 
     @Override
     public void updateDirector(Director director) {
-        jdbcTemplate.update("UPDATE DIRECTORS " +
+        jdbcTemplate.update("UPDATE directors " +
                         "SET name = ? " +
-                        "WHERE DIRECTOR_ID = ?;",
+                        "WHERE director_id = ?;",
                 director.getName(),
                 director.getId());
     }
 
     @Override
-    public Set<Director> getDirectorByFilmId(Long film_id) {
-        List<Long> directorIds = jdbcTemplate.query("SELECT director_id" +
-                        " FROM FILM_DIRECTORS WHERE FILM_ID = ? ORDER BY FILM_ID;",
-                (rs, rowNum) -> rs.getLong("director_id"), film_id);
-        if (directorIds.isEmpty()) {
-            return new HashSet<>();
-        } else {
-            return directorIds.stream().map(id -> getDirectorById(id)
-                    .orElse(new Director())).collect(Collectors.toSet());
-        }
-    }
-
-
-    @Override
     public List<Director> getAllDirector() {
-        return jdbcTemplate.query("SELECT * FROM DIRECTORS ORDER BY DIRECTOR_ID;", (rs, rowNum) -> makeDirector(rs));
+        return jdbcTemplate.query("SELECT * FROM directors ORDER BY director_id;",
+                (rs, rowNum) -> makeDirector(rs));
     }
 
     @Override
     public Optional<Director> getDirectorById(long id) {
-        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM DIRECTORS WHERE DIRECTOR_ID = ?;", id);
+        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE director_id = ?;", id);
         if (directorRows.next()) {
             Director director = new Director();
             director.setId(directorRows.getLong("director_id"));
@@ -83,14 +66,8 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void deleteDirectorById(long id) {
-        jdbcTemplate.update("DELETE FROM DIRECTORS WHERE DIRECTOR_ID = ?;", id);
+        jdbcTemplate.update("DELETE FROM directors WHERE director_id = ?;", id);
     }
-
-    @Override
-    public void deleteDirector(Long film_id) {
-        jdbcTemplate.update("DELETE FROM FILM_DIRECTORS WHERE film_id = ?;", film_id);
-    }
-
 
     private Director makeDirector(ResultSet rs) throws SQLException {
         Director director = new Director();

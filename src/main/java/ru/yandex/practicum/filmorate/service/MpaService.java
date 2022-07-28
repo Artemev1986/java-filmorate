@@ -20,13 +20,16 @@ public class MpaService {
     }
 
     public List<Mpa> getAllMpa() {
-        log.debug("Get all MPA");
-        return mpaStorage.getAllMpa();
+        List<Mpa> ListOfMpa = mpaStorage.getAllMpa();
+        log.debug("Get all MPA. Current MPA counts: {}", ListOfMpa.size());
+        return ListOfMpa;
     }
 
     public Mpa getMpaById(int id) {
-        return mpaStorage.getMpaById(id).
+        Mpa mpa = mpaStorage.getMpaById(id).
                 orElseThrow(() -> new NotFoundException("MPA with id (" + id + ") not found")
                 );
+        log.debug("Get MPA by id: {}", id);
+        return mpa;
     }
 }
