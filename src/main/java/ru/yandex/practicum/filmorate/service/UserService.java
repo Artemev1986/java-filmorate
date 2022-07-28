@@ -29,9 +29,7 @@ public class UserService {
     private final FriendStorage friendStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage,
-                       LikeStorage likeStorage,
-                       FilmStorage filmStorage,
+    public UserService(UserStorage userStorage, LikeStorage likeStorage, FilmStorage filmStorage,
                        FeedStorage feedStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
