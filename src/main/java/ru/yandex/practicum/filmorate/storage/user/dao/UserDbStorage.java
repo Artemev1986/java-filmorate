@@ -84,17 +84,19 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Long> getUserIdsForRecommendations(Long userId) {
-        return jdbcTemplate.query("SELECT l2.user_id AS similar_user_id " +
-                        "FROM likes AS l1 " +
-                        "JOIN likes AS l2 ON l1.film_id = l2.film_id AND l1.user_id <> l2.user_id " +
-                        "WHERE l1.user_id = ? " +
+        return jdbcTemplate.query("SELECT likes2.user_id AS similar_user_id " +
+                        "FROM likes AS likes1 " +
+                        "JOIN likes AS likes2 ON likes1.film_id = likes2.film_id " +
+                        "AND likes1.user_id <> likes2.user_id " +
+                        "WHERE likes1.user_id = ? " +
                         "GROUP BY similar_user_id " +
                         "HAVING count(*) = ( " +
                         "    SELECT count(*) AS max_matches_amount " +
-                        "    FROM likes AS l3 " +
-                        "             JOIN likes AS l4 ON l3.film_id = l4.film_id AND l3.user_id <> l4.user_id " +
-                        "    WHERE l3.user_id = ? " +
-                        "    GROUP BY l4.user_id " +
+                        "    FROM likes AS likes3 " +
+                        "             JOIN likes AS likes4 ON likes3.film_id = likes4.film_id " +
+                        "AND likes3.user_id <> likes4.user_id " +
+                        "    WHERE likes3.user_id = ? " +
+                        "    GROUP BY likes4.user_id " +
                         "    ORDER BY count(*) DESC " +
                         "    LIMIT 1 " +
                         "    );",

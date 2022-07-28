@@ -41,14 +41,16 @@ public class UserService {
     }
 
     public List<User> findAll() {
-        log.debug("Current user counts: {}", userStorage.findAll().size());
-        return userStorage.findAll();
+        List<User> users = userStorage.findAll();
+        log.debug("Current user counts: {}", users.size());
+        return users;
     }
 
     public User getUserById(long id) {
-        log.debug("User search by id: {}", id);
-        return userStorage.getUserById(id)
+        User user = userStorage.getUserById(id)
                 .orElseThrow(() -> new NotFoundException("User with id (" + id + ") not found"));
+        log.debug("User search by id: {}", id);
+        return user;
     }
 
     public User addUser(User user) {
@@ -61,12 +63,12 @@ public class UserService {
     public User updateUser(User user) {
         checkName(user);
         getUserById(user.getId());
+        User updatedUser = userStorage.updateUser(user);
         log.debug("User with id ({}) was updated", user.getId());
-        return userStorage.updateUser(user);
+        return updatedUser;
     }
 
     public void deleteUserById(long id) {
-        getUserById(id);
         userStorage.deleteUserById(id);
         log.debug("User with id ({}) was deleted", id);
     }
@@ -82,8 +84,6 @@ public class UserService {
     }
 
     public void deleteFriend(long userId, long friendId) {
-        getUserById(friendId); //Will throw an exception if there is no user with id
-        getUserById(userId);
         friendStorage.deleteFriend(userId, friendId);
         friendStorage.deleteFriend(friendId, userId);
         feedStorage.addInFeed(userId, "FRIEND", "REMOVE", friendId);

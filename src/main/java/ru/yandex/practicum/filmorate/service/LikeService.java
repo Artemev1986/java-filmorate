@@ -32,7 +32,6 @@ public class LikeService {
                 .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
         Film film= filmStorage.getFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Film with id (" + filmId + ") not found"));
-
         likeStorage.addLike(filmId, userId);
         feedStorage.addInFeed(userId, "LIKE", "ADD", filmId);
         log.debug("Like for the {} added by {}",
@@ -45,13 +44,10 @@ public class LikeService {
                 .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
         Film film= filmStorage.getFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Film with id (" + filmId + ") not found"));
-
         likeStorage.deleteLike(filmId, userId);
         feedStorage.addInFeed(userId, "LIKE", "REMOVE", filmId);
         log.debug("Like for the {} deleted by {}",
                 film.getName(),
                 user.getName());
     }
-
-
 }

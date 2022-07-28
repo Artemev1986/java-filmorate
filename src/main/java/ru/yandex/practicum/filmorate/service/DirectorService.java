@@ -29,14 +29,16 @@ public class DirectorService {
     public Director updateDirector(Director director) {
         getDirectorById(director.getId()); //Will throw an exception if there is no director with id
         directorStorage.updateDirector(director);
+        Director directorFromStorage = getDirectorById(director.getId());
         log.debug("Director with id ({}) was updated", director.getId());
-        return getDirectorById(director.getId());
+        return directorFromStorage;
     }
 
 
     public List<Director> getAllDirector() {
+        List<Director> directors = directorStorage.getAllDirector();
         log.debug("Get all Director");
-        return directorStorage.getAllDirector();
+        return directors;
     }
 
     public Director getDirectorById(long id) {
