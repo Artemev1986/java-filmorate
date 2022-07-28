@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.*;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 
@@ -21,14 +18,16 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
+    private final FilmDirectorsStorage filmDirectorsStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, FilmGenreStorage filmGenreStorage,
-                       DirectorStorage directorStorage, UserStorage userStorage) {
+                       DirectorStorage directorStorage, UserStorage userStorage, FilmDirectorsStorage filmDirectorsStorage) {
         this.filmStorage = filmStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.directorStorage = directorStorage;
         this.userStorage = userStorage;
+        this.filmDirectorsStorage = filmDirectorsStorage;
     }
 
     public Film addFilm(Film film) {
@@ -37,7 +36,7 @@ public class FilmService {
             film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
         }
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            film.getDirectors().forEach(directors -> directorStorage.addDirectorByFilm(film.getId(), directors.getId()));
+            film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
         }
         Film filmFromStorage = getFilmById(film.getId());
         log.debug("Adding new film with id: {}", film.getId());
@@ -53,11 +52,11 @@ public class FilmService {
                 film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
         }
         if (film.getDirectors() != null) {
-            directorStorage.deleteDirector(film.getId());
+            filmDirectorsStorage.deleteDirector(film.getId());
             if (!film.getDirectors().isEmpty())
-                film.getDirectors().forEach(directors -> directorStorage.addDirectorByFilm(film.getId(), directors.getId()));
+                film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
         } else {
-            directorStorage.deleteDirector(film.getId());
+            filmDirectorsStorage.deleteDirector(film.getId());
         }
         Film filmFromStorage = filmStorage.getFilmById(film.getId()).orElseThrow(() -> new NotFoundException("Film with id (" + film.getId() + ") not found"));
         if (filmFromStorage.getDirectors().isEmpty()) {

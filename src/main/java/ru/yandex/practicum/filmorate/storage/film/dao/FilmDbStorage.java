@@ -18,14 +18,14 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreStorage filmGenreStorage;
     private final LikeStorage likeStorage;
-    private final DirectorStorage directorStorage;
+    private final FilmDirectorsStorage filmDirectorsStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, FilmGenreStorage filmGenreStorage,
-                         LikeStorage likeStorage, DirectorStorage directorStorage) {
+                         LikeStorage likeStorage, FilmDirectorsStorage filmDirectorsStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmGenreStorage = filmGenreStorage;
         this.likeStorage = likeStorage;
-        this.directorStorage = directorStorage;
+        this.filmDirectorsStorage = filmDirectorsStorage;
     }
 
     @Override
@@ -263,7 +263,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setDuration(rs.getInt("f_duration"));
         film.setLikes(likeStorage.getLikesByFilmId(film.getId()));
         film.setGenres(filmGenreStorage.getGenresByFilmId(film.getId()));
-        film.setDirectors(directorStorage.getDirectorByFilmId(film.getId()));
+        film.setDirectors(filmDirectorsStorage.getDirectorByFilmId(film.getId()));
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("m_id"));
         mpa.setName(rs.getString("m_name"));
