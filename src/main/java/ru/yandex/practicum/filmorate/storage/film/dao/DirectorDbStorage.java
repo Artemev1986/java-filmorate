@@ -29,7 +29,7 @@ public class DirectorDbStorage implements DirectorStorage {
         jdbcTemplate.update((connection) -> {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO directors" +
                     "(name) " +
-                    "VALUES (?);", new String[] {"director_id"});
+                    "VALUES (?);", new String[]{"director_id"});
             ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
@@ -37,8 +37,8 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void updateDirector(Director director) {
-        jdbcTemplate.update("UPDATE directors " +
+    public int updateDirector(Director director) {
+        return jdbcTemplate.update("UPDATE directors " +
                         "SET name = ? " +
                         "WHERE director_id = ?;",
                 director.getName(),

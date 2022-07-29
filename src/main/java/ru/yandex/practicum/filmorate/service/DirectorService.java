@@ -27,11 +27,12 @@ public class DirectorService {
     }
 
     public Director updateDirector(Director director) {
-        getDirectorById(director.getId()); //Will throw an exception if there is no director with id
-        directorStorage.updateDirector(director);
-        Director directorFromStorage = getDirectorById(director.getId());
+        int updateDirector = directorStorage.updateDirector(director);
+        if (updateDirector < 1) {
+            throw new NotFoundException("Director not found");
+        }
         log.debug("Director with id ({}) was updated", director.getId());
-        return directorFromStorage;
+        return director;
     }
 
 
@@ -42,7 +43,7 @@ public class DirectorService {
     }
 
     public Director getDirectorById(long id) {
-        Director director =directorStorage.getDirectorById(id).
+        Director director = directorStorage.getDirectorById(id).
                 orElseThrow(() -> new NotFoundException("Director with id (" + id + ") not found")
                 );
         log.debug("Get Director by id({})", id);
