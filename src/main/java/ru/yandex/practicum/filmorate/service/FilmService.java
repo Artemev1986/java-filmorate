@@ -15,28 +15,29 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final FilmGenreStorage filmGenreStorage;
     private final DirectorStorage directorStorage;
     private final UserStorage userStorage;
     private final FilmDirectorsStorage filmDirectorsStorage;
+    private final FilmGenreStorage filmGenreStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, FilmGenreStorage filmGenreStorage,
-                       DirectorStorage directorStorage, UserStorage userStorage, FilmDirectorsStorage filmDirectorsStorage) {
+    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage, UserStorage userStorage,
+                       FilmDirectorsStorage filmDirectorsStorage, FilmGenreStorage filmGenreStorage) {
         this.filmStorage = filmStorage;
-        this.filmGenreStorage = filmGenreStorage;
         this.directorStorage = directorStorage;
         this.userStorage = userStorage;
         this.filmDirectorsStorage = filmDirectorsStorage;
+        this.filmGenreStorage = filmGenreStorage;
     }
 
     public Film addFilm(Film film) {
         filmStorage.addFilm(film);
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
+            filmGenreStorage.addGenres(film.getId(), List.copyOf(film.getGenres()));
         }
+
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
+            filmDirectorsStorage.addDirectors(film.getId(), List.copyOf(film.getDirectors()));
         }
         Film filmFromStorage = getFilmById(film.getId());
         log.debug("Adding new film with id: {}", film.getId());
@@ -49,12 +50,15 @@ public class FilmService {
         if (film.getGenres() != null) {
             filmGenreStorage.deleteGenres(film.getId());
             if (!film.getGenres().isEmpty())
-                film.getGenres().forEach(genre -> filmGenreStorage.addGenre(film.getId(), genre.getId()));
+                filmGenreStorage.addGenres(film.getId(), List.copyOf(film.getGenres()));
+        } else {
+            filmGenreStorage.deleteGenres(film.getId());
         }
+
         if (film.getDirectors() != null) {
             filmDirectorsStorage.deleteDirector(film.getId());
             if (!film.getDirectors().isEmpty())
-                film.getDirectors().forEach(directors -> filmDirectorsStorage.addDirectorByFilm(film.getId(), directors.getId()));
+                filmDirectorsStorage.addDirectors(film.getId(), List.copyOf(film.getDirectors()));
         } else {
             filmDirectorsStorage.deleteDirector(film.getId());
         }
