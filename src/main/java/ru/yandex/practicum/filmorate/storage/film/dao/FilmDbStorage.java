@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component()
+@Slf4j
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreStorage filmGenreStorage;
@@ -73,7 +75,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
-        return film;
+         return film;
     }
 
     @Override

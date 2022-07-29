@@ -11,7 +11,7 @@ import java.util.Set;
 public class User {
     private long id;
     private String name;
-    @NotEmpty(message = "Email cannot be empty.")
+    @NotEmpty(message = "{email.notempty}")
     @Email(message = "Enter a valid email address.")
     private String email;
     @NotBlank(message = "Login cannot be blank.")

@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.film.dao;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDirectorsStorage;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,5 +46,21 @@ public class FilmDirectorsDbStorage implements FilmDirectorsStorage {
     @Override
     public void deleteDirector(Long film_id) {
         jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?;", film_id);
+    }
+
+    @Override
+    public int[] addDirectors(Long film_id, List<Director> directors) {
+        return jdbcTemplate.batchUpdate(
+                "INSERT INTO film_directors (film_id, director_id) VALUES ( ?, ? );",
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, film_id);
+                        ps.setLong(2, directors.get(i).getId());
+                    }
+
+                    public int getBatchSize() {
+                        return directors.size();
+                    }
+                } );
     }
 }
