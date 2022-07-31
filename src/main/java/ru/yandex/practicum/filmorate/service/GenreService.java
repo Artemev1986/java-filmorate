@@ -20,13 +20,16 @@ public class GenreService {
     }
 
     public List<Genre> getAllGenre() {
-        log.debug("Get all Genre");
-        return genreStorage.getAllGenre();
+        List<Genre> genres = genreStorage.getAllGenre();
+        log.debug("Get all genres. Current genre counts: {}", genres.size());
+        return genres;
     }
 
     public Genre getGenreById(int id) {
-        return genreStorage.getGenreById(id).
+        Genre genre = genreStorage.getGenreById(id).
                 orElseThrow(() -> new NotFoundException("Genre with id (" + id + ") not found")
                 );
+        log.debug("Get genre by id: {}", id);
+        return genre;
     }
 }

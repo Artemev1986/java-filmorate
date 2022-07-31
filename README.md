@@ -21,7 +21,14 @@ The following commands are available in this service:
 - Get a film by its Id;
 - Get top N films sorted in descending order of rating;
 - Get a list of all film genres;
-- Get a list of all film age ratings.
+- Get a list of all film age ratings;
+- List of the most popular films by genre and year;
+- adding reviews and their usefulness;
+- Get recommendations for films to watch;
+- Add directors;
+- Search films;
+- Get the user's event feed;
+- Returns a list of films sorted by popularity.
 
 ## Database
 
@@ -73,38 +80,42 @@ This table contains information about users:
 - **name** - user name;
 - **birthday** - user's birthday.
 
-#### Таблица *friends*
+#### *friends*
 This table contains information about users' friends:
 
 - **user_id** - user ID;
 - **friend_id** - friend ID;
 - **is_confirm** - friendship status.
 
-### Main SQL queries for films:
+#### *review*
+- **review_id** - review ID;
+- **content** - content;
+- **is_positive** - false - positive, true - negative;
+- **film_id** - film ID;
+- **user_id** - user ID;
 
-    SQL_GET_FILM_BY_ID = SELECT 
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM (SELECT * FROM films AS f WHERE film_id=?) AS f
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;
+#### *review_likes*
+- **review_id** - review ID;
+- **user_id** - user ID;
+- **is_useful** - false - positive, true - negative;
 
-    SQL_GET_ALL_FILMS = SELECT 
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM films AS f
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id;
+#### *directors*
+- **director_id bigint** - director ID;
+- **name** - director's name;
+
+#### *film_directors*
+- **film_id** - film ID;
+- **director_id** - director ID;
+
+#### *feed*
+- **event_id** - event ID;
+- **user_id** - user ID;
+- **entity_id** - entity ID;
+- **event_type** - event type;
+- **operation** - operation;
+- **time** - event time;
+
+### Examples SQL queries for films:
 
     SQL_ADD_FILM = INSERT INTO films (
             name,
@@ -129,23 +140,8 @@ This table contains information about users' friends:
     SQL_DELETE_GENRE = DELETE FROM film_genre WHERE film_id = ?;
     SQL_GET_ALL_MPA = SELECT * FROM MPA ORDER BY MPA_id;
     SQL_GET_ALL_GENRE = SELECT * FROM genres ORDER BY genre_id;
-    SQL_GET_POPULAR_FILMS = SELECT
-            f.film_id AS f_id,
-            f.name AS f_name,
-            f.description AS f_description,
-            f.duration AS f_duration,
-            m.MPA_id AS m_id,
-            m.name AS m_name,
-            m.description AS m_description,
-            f.release_date AS f_release_date
-            FROM films AS f
-            LEFT JOIN
-            (SELECT film_id, COUNT(user_id) as cnt FROM likes
-            GROUP BY film_id ) AS l ON f.film_id = l.film_id
-            LEFT JOIN MPA AS m ON f.MPA_id=m.MPA_id
-            ORDER BY cnt DESC LIMIT ?;
 
-### Main SQL queries for users:
+### Examples SQL queries for users:
     SQL_GET_USERS = SELECT * FROM users ORDER BY user_id;
     SQL_GET_USER_BY_ID = SELECT * FROM users WHERE user_id = ?;
     SQL_ADD_USER = INSERT INTO users (name, email, login, birthday)
@@ -161,4 +157,3 @@ This table contains information about users' friends:
     SQL_GET_FRIEND_BY_ID = SELECT friend_id FROM friends WHERE user_id = ?;
     SQL_GET_STATUS_FRIEND = SELECT is_confirmed FROM friends WHERE user_id = ?
     AND FRIEND_ID = ?;
-    SQL_GET_LAST_ID = SELECT * FROM users ORDER BY user_id DESC LIMIT 1;
